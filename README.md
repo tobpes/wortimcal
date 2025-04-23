@@ -1,7 +1,6 @@
 # Working Time Calculator (wortimcal)
-# GFOS Helper
 
-**GFOS Helper** is a simple tool that calculates your end-of-work time based on your start time, break time, and optional end time. It also tracks overtime or under time and provides a reminder of the legal minimum break time (30 minutes).
+My **Working Time Calculator** or **"GFOS Helper"** is a simple tool that calculates your end-of-work time based on your start time, break time, and optional end time. It also tracks overtime or under time and provides a reminder of the legal minimum break time (30 minutes).
 
 ## Features
 
