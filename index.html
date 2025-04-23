@@ -155,7 +155,7 @@
     let totalPauseMinutes = pauseH * 60 + pauseM;
 
     if (totalPauseMinutes < 30) {
-      pauseNote.textContent = '⚠️ Die gesetzlich vorgeschriebene Pausenregelung (30 Minuten) wird berücksichtigt.';
+      pauseNote.textContent = '⚠️ Gesetzlich vorgeschriebene Mindestpause: 30 Minuten werden angerechnet.';
       totalPauseMinutes = 30;
     } else {
       pauseNote.textContent = '';
@@ -180,14 +180,18 @@
       endDate.setHours(endH, endM, 0, 0);
 
       const workedMinutes = (endDate.getTime() - startDate.getTime()) / 60000 - totalPauseMinutes;
-      const overtimeMinutes = workedMinutes - targetWorkMinutes;
+      const timeDiff = workedMinutes - targetWorkMinutes;
 
-      if (overtimeMinutes > 0) {
-        const overtimeHours = Math.floor(overtimeMinutes / 60);
-        const overtimeMins = Math.round(overtimeMinutes % 60);
+      if (timeDiff > 0) {
+        const overtimeHours = Math.floor(timeDiff / 60);
+        const overtimeMins = Math.round(timeDiff % 60);
         overtime.textContent = `Du hast ${overtimeHours} Stunden und ${overtimeMins} Minuten Überstunden gemacht.`;
+      } else if (timeDiff < 0) {
+        const minusHours = Math.floor(Math.abs(timeDiff) / 60);
+        const minusMins = Math.round(Math.abs(timeDiff) % 60);
+        overtime.textContent = `Du hast ${minusHours} Stunden und ${minusMins} Minuten Minusstunden gemacht.`;
       } else {
-        overtime.textContent = `Keine Überstunden.`;
+        overtime.textContent = `Keine Über- oder Minusstunden.`;
       }
     } else {
       overtime.textContent = '';
@@ -198,6 +202,7 @@
   pauseInput.addEventListener('input', updateFeierabend);
   endInput.addEventListener('input', updateFeierabend);
 </script>
+
 
 </body>
 </html>
