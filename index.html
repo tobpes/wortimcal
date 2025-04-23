@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GFOS Helper</title>
+  <link rel="icon" href="favicon.ico" type="image/x-icon">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background: url('https://www.hapag-lloyd.com/content/dam/website/images/press_and_media/photo_library/HLAG_Wallpaper_stack-containers.jpg') no-repeat center center fixed;
+      background-size: cover;
+      color: #ffffff;
+      padding: 2rem;
+      margin: 0;
+    }
+
+    .container {
+      background-color: rgba(0, 0, 0, 0.6);
+      border-radius: 12px;
+      padding: 2rem;
+      max-width: 500px;
+      margin: auto;
+      box-shadow: 0 0 12px rgba(0, 0, 0, 0.5);
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 0.3rem;
+      font-size: 1.8rem;
+    }
+
+    h3 {
+      text-align: center;
+      margin-top: 0;
+      margin-bottom: 1.5rem;
+      font-weight: 400;
+      color: #dddddd;
+    }
+
+    label {
+      margin-top: 1rem;
+      font-weight: 600;
+      display: block;
+    }
+
+    input[type="time"] {
+      display: block;
+      width: 100%;
+      padding: 0.5rem;
+      font-size: 1rem;
+      border: none;
+      border-radius: 6px;
+      margin-top: 0.3rem;
+      box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.2);
+    }
+
+    #result {
+      font-size: 1.2rem;
+      margin-top: 1.5rem;
+      padding: 1rem;
+      background: #e3ffe3;
+      border: 1px solid #b2ffb2;
+      color: #222;
+      text-align: center;
+      border-radius: 8px;
+    }
+
+    #overtime {
+      font-size: 1.2rem;
+      margin-top: 1.5rem;
+      padding: 1rem;
+      background: #ffe3e3;
+      border: 1px solid #ffb2b2;
+      color: #c22;
+      text-align: center;
+      border-radius: 8px;
+    }
+
+    hr {
+      margin: 2rem 0;
+      border: none;
+      border-top: 1px solid #666;
+    }
+
+    footer {
+      text-align: center;
+      font-size: 0.85rem;
+      color: #aaa;
+      margin-top: 2rem;
+    }
+
+    @media (max-width: 600px) {
+      .container {
+        padding: 1rem;
+      }
+
+      h1 {
+        font-size: 1.5rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="container">
+  <h1>GFOS Helper 🕒</h1>
+  <h3>Feierabend-Rechner</h3>
+
+  <label for="start">Arbeitsbeginn:</label>
+  <input type="time" id="start">
+
+  <label for="pause">Pausenzeit (hh:mm):</label>
+  <input type="time" id="pause" step="60">
+
+  <label for="end">Arbeitsende (optional):</label>
+  <input type="time" id="end">
+
+  <div id="result">Bitte gib Arbeitsbeginn, Pause und ggf. Arbeitsende ein.</div>
+  <div id="overtime"></div>
+
+  <hr>
+
+  <footer>
+    © 2025 | created by peschto with support from ChatGPT
+  </footer>
+</div>
+
+<script>
+  const startInput = document.getElementById('start');
+  const pauseInput = document.getElementById('pause');
+  const endInput = document.getElementById('end');
+  const result = document.getElementById('result');
+  const overtime = document.getElementById('overtime');
+
+  const targetWorkMinutes = 7 * 60 + 36; // 7h 36min
+
+  function updateFeierabend() {
+    if (!startInput.value || !pauseInput.value) return;
+
+    const [startH, startM] = startInput.value.split(':').map(Number);
+    const [pauseH, pauseM] = pauseInput.value.split(':').map(Number);
+
+    const startDate = new Date();
+    startDate.setHours(startH, startM, 0, 0);
+
+    const totalMinutes = targetWorkMinutes + pauseH * 60 + pauseM;
+    const feierabendDate = new Date(startDate.getTime() + totalMinutes * 60000);
+
+    const feierabend = feierabendDate.toLocaleTimeString('de-DE', {
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+
+    result.textContent = `Du kannst um ${feierabend} Uhr Feierabend machen. 🎉`;
+
+    // Überstundenberechnung nur, wenn Arbeitsende angegeben wurde
+    if (endInput.value) {
+      const [endH, endM] = endInput.value.split(':').map(Number);
+      const endDate = new Date();
+      endDate.setHours(endH, endM, 0, 0);
+
+      const workedMinutes = (endDate.getTime() - startDate.getTime()) / 60000 - pauseH * 60 - pauseM;
+      const overtimeMinutes = workedMinutes - targetWorkMinutes;
+
+      if (overtimeMinutes > 0) {
+        const overtimeHours = Math.floor(overtimeMinutes / 60);
+        const overtimeMins = Math.round(overtimeMinutes % 60);
+        overtime.textContent = `Du hast ${overtimeHours} Stunden und ${overtimeMins} Minuten Überstunden gemacht.`;
+      } else {
+        overtime.textContent = `Keine Überstunden.`;
+      }
+    } else {
+      overtime.textContent = '';  // Keine Anzeige für Überstunden, wenn kein Arbeitsende angegeben
+    }
+  }
+
+  startInput.addEventListener('input', updateFeierabend);
+  pauseInput.addEventListener('input', updateFeierabend);
+  endInput.addEventListener('input', updateFeierabend);
+</script>
+
+</body>
+</html>
