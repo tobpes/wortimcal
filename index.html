@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>GFOS Helper</title>
-  <link rel="icon" href="favicon\favicon.ico" type="image/x-icon">
+  <link rel="icon" href="favicon/favicon.ico" type="image/x-icon">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
 
   <style>
@@ -79,6 +79,13 @@
       border-radius: 8px;
     }
 
+    #pause-note {
+      font-size: 0.95rem;
+      margin-top: 0.5rem;
+      color: #ffff99;
+      text-align: center;
+    }
+
     hr {
       margin: 2rem 0;
       border: none;
@@ -115,6 +122,7 @@
 
   <label for="pause">Pausenzeit (hh:mm):</label>
   <input type="time" id="pause" step="60">
+  <div id="pause-note"></div>
 
   <label for="end">Arbeitsende (optional):</label>
   <input type="time" id="end">
@@ -135,6 +143,7 @@
   const endInput = document.getElementById('end');
   const result = document.getElementById('result');
   const overtime = document.getElementById('overtime');
+  const pauseNote = document.getElementById('pause-note');
 
   const targetWorkMinutes = 7 * 60 + 36; // 7h 36min
 
@@ -142,12 +151,20 @@
     if (!startInput.value || !pauseInput.value) return;
 
     const [startH, startM] = startInput.value.split(':').map(Number);
-    const [pauseH, pauseM] = pauseInput.value.split(':').map(Number);
+    let [pauseH, pauseM] = pauseInput.value.split(':').map(Number);
+    let totalPauseMinutes = pauseH * 60 + pauseM;
+
+    if (totalPauseMinutes < 30) {
+      pauseNote.textContent = '⚠️ Die gesetzlich vorgeschriebene Pausenregelung (30 Minuten) wird berücksichtigt.';
+      totalPauseMinutes = 30;
+    } else {
+      pauseNote.textContent = '';
+    }
 
     const startDate = new Date();
     startDate.setHours(startH, startM, 0, 0);
 
-    const totalMinutes = targetWorkMinutes + pauseH * 60 + pauseM;
+    const totalMinutes = targetWorkMinutes + totalPauseMinutes;
     const feierabendDate = new Date(startDate.getTime() + totalMinutes * 60000);
 
     const feierabend = feierabendDate.toLocaleTimeString('de-DE', {
@@ -157,13 +174,12 @@
 
     result.textContent = `Du kannst um ${feierabend} Uhr Feierabend machen. 🎉`;
 
-    // Überstundenberechnung nur, wenn Arbeitsende angegeben wurde
     if (endInput.value) {
       const [endH, endM] = endInput.value.split(':').map(Number);
       const endDate = new Date();
       endDate.setHours(endH, endM, 0, 0);
 
-      const workedMinutes = (endDate.getTime() - startDate.getTime()) / 60000 - pauseH * 60 - pauseM;
+      const workedMinutes = (endDate.getTime() - startDate.getTime()) / 60000 - totalPauseMinutes;
       const overtimeMinutes = workedMinutes - targetWorkMinutes;
 
       if (overtimeMinutes > 0) {
@@ -174,7 +190,7 @@
         overtime.textContent = `Keine Überstunden.`;
       }
     } else {
-      overtime.textContent = '';  // Keine Anzeige für Überstunden, wenn kein Arbeitsende angegeben
+      overtime.textContent = '';
     }
   }
 
