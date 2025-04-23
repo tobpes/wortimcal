@@ -11,3 +11,6 @@
   - Optional end time
 - Automatically calculate break time by entering break start and end times
 - Shows overtime or under time based on your work hours
+
+## Disclaimer
+Private tool for personal use – no warranty or guarantees.
