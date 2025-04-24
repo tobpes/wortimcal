@@ -27,10 +27,9 @@
 
     h1 {
       text-align: center;
-      margin-bottom: 1rem;
+      margin-bottom: 0.3rem;
       font-size: 1.8rem;
     }
-
 
     label {
       margin-top: 1rem;
@@ -82,39 +81,47 @@
       text-align: center;
     }
 
-    #result {
+    #result, #overtime {
       font-size: 1.2rem;
       margin-top: 1.5rem;
       padding: 1rem;
+      border-radius: 8px;
+      text-align: center;
+    }
+
+    #result {
       background: #e3ffe3;
       border: 1px solid #b2ffb2;
       color: #222;
-      text-align: center;
-      border-radius: 8px;
     }
 
     #overtime {
-      font-size: 1.2rem;
-      margin-top: 1.5rem;
-      padding: 1rem;
       background: #ffe3e3;
       border: 1px solid #ffb2b2;
       color: #c22;
-      text-align: center;
-      border-radius: 8px;
-    }
-
-    hr {
-      margin: 2rem 0;
-      border: none;
-      border-top: 1px solid #666;
     }
 
     footer {
       text-align: center;
       font-size: 0.85rem;
-      color: #aaa;
+      color: #fffff;
       margin-top: 2rem;
+    }
+
+    #langToggle {
+      margin: 0.5rem auto;
+      padding: 0.3rem 0.8rem;
+      font-size: 0.9rem;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      background-color: #ffffff;
+      color: #333;
+      display: inline-block;
+    }
+
+    #langToggle:hover {
+      background-color: #dddddd;
     }
 
     @media (max-width: 600px) {
@@ -128,155 +135,210 @@
     }
   </style>
 </head>
-
 <body>
+  <div class="container">
+    <h1 id="title">GFOS Helper 🕒</h1>
 
-<div class="container">
-  <h1>GFOS Helper 🕒</h1>
+    <div id="infoText">
+      <p><strong>Info:</strong> Gib deinen Arbeitsbeginn, die Pausenzeit und ggf. dein Arbeitsende ein, um deinen Feierabend und ggf. Minus- oder Überstunden zu berechnen. Du kannst entweder die Pausenzeit manuell eingeben oder sie automatisch berechnen lassen, indem du den Pausenbeginn und das Pausenende angibst und den "Pause berechnen" Button drückst.</p>
+    </div>
 
-  <!-- Erklärungstext über die Nutzung des Tools -->
-  <div id="infoText">
-<p><strong>Info:</strong> Gib deinen Arbeitsbeginn, die Pausenzeit und ggf. dein Arbeitsende ein, um deinen Feierabend sowie mögliche Über- oder Minusstunden zu berechnen. Du kannst die Pausenzeit entweder manuell eingeben oder automatisch berechnen lassen, indem du den Pausenbeginn und -ende angibst und den "Pause berechnen"-Button drückst.</p>
+    <label id="labelStart" for="start">Arbeitsbeginn:</label>
+    <input type="time" id="start">
+
+    <label id="labelPause" for="pause">Pausenzeit (hh:mm):</label>
+    <input type="time" id="pause" step="60">
+
+    <label id="labelEnd" for="end">Arbeitsende (optional):</label>
+    <input type="time" id="end">
+
+    <label id="labelBreakStart" for="breakStart">Pausenbeginn:</label>
+    <input type="time" id="breakStart">
+
+    <label id="labelBreakEnd" for="breakEnd">Pausenende:</label>
+    <input type="time" id="breakEnd">
+
+    <button id="calcBreakBtn">Pause berechnen</button>
+    <button id="resetBtn">Reset</button>
+
+    <div id="breakHint">✅ Berechnete Pause wurde übernommen.</div>
+    <div id="pauseHint">⚠️ Gesetzlich vorgeschriebene Mindestpause: 30 Minuten.</div>
+
+    <div id="result"></div>
+    <div id="overtime"></div>
   </div>
 
-  <label for="start">Arbeitsbeginn:</label>
-  <input type="time" id="start">
-
-  <label for="pause">Pausenzeit (hh:mm):</label>
-  <input type="time" id="pause" step="60">
-
-  <label for="end">Arbeitsende (optional):</label>
-  <input type="time" id="end">
-
-  <label for="breakStart">Pausenbeginn:</label>
-  <input type="time" id="breakStart">
-
-  <label for="breakEnd">Pausenende:</label>
-  <input type="time" id="breakEnd">
-
-  <button id="calcBreakBtn">Pause berechnen</button>
-  <button id="resetBtn">Reset</button>
-  <div id="breakHint">✅ Berechnete Pause wurde übernommen.</div>
-  <div id="pauseHint">⚠️ Gesetzlich vorgeschriebene Mindestpause: 30 Minuten.</div>
-
-  <div id="result"></div>
-  <div id="overtime"></div>
-
-  <hr>
-
   <footer>
+    <button id="langToggle">🇩🇪 Deutsch</button><br>
     © 2025 | created by peschto with support from ChatGPT
   </footer>
-</div>
 
-<script>
-  const startInput = document.getElementById('start');
-  const pauseInput = document.getElementById('pause');
-  const endInput = document.getElementById('end');
-  const breakStartInput = document.getElementById('breakStart');
-  const breakEndInput = document.getElementById('breakEnd');
-  const calcBreakBtn = document.getElementById('calcBreakBtn');
-  const resetBtn = document.getElementById('resetBtn');
-  const breakHint = document.getElementById('breakHint');
-  const pauseHint = document.getElementById('pauseHint');
-  const result = document.getElementById('result');
-  const overtime = document.getElementById('overtime');
+  <script>
+    const startInput = document.getElementById('start');
+    const pauseInput = document.getElementById('pause');
+    const endInput = document.getElementById('end');
+    const breakStartInput = document.getElementById('breakStart');
+    const breakEndInput = document.getElementById('breakEnd');
+    const calcBreakBtn = document.getElementById('calcBreakBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    const breakHint = document.getElementById('breakHint');
+    const pauseHint = document.getElementById('pauseHint');
+    const result = document.getElementById('result');
+    const overtime = document.getElementById('overtime');
+    const langToggle = document.getElementById('langToggle');
+    const infoText = document.getElementById('infoText');
 
-  const targetWorkMinutes = 7 * 60 + 36; // 7h 36min
+    const targetWorkMinutes = 7 * 60 + 36;
+    let lang = 'de';
 
-  function updateFeierabend() {
-    if (!startInput.value || !pauseInput.value) return;
+    const translations = {
+      de: {
+        title: 'GFOS Helper 🕒',
+        info: '<strong>Info:</strong> Gib deinen Arbeitsbeginn, die Pausenzeit und ggf. dein Arbeitsende ein, um deinen Feierabend und ggf. Minus- oder Überstunden zu berechnen. Du kannst entweder die Pausenzeit manuell eingeben oder sie automatisch berechnen lassen, indem du den Pausenbeginn und das Pausenende angibst und den "Pause berechnen" Button drückst.',
+        start: 'Arbeitsbeginn:',
+        pause: 'Pausenzeit (hh:mm):',
+        end: 'Arbeitsende (optional):',
+        breakStart: 'Pausenbeginn:',
+        breakEnd: 'Pausenende:',
+        calcBreak: 'Pause berechnen',
+        reset: 'Reset',
+        pauseHint: '⚠️ Gesetzlich vorgeschriebene Mindestpause: 30 Minuten.',
+        breakHint: '✅ Berechnete Pause wurde übernommen.',
+        langToggle: '🇩🇪 Deutsch'
+      },
+      en: {
+        title: 'GFOS Helper 🕒',
+        info: '<strong>Info:</strong> Enter your work start, break time and optionally your end time to calculate your finishing time and potential overtime or undertime. You can either enter the break time manually or have it calculated by entering the break start and end time and clicking the "Calculate Break" button.',
+        start: 'Work start:',
+        pause: 'Break time (hh:mm):',
+        end: 'Work end (optional):',
+        breakStart: 'Break start:',
+        breakEnd: 'Break end:',
+        calcBreak: 'Calculate break',
+        reset: 'Reset',
+        pauseHint: '⚠️ Legal minimum break: 30 minutes.',
+        breakHint: '✅ Calculated break was applied.',
+        langToggle: '🇬🇧 English'
+      }
+    };
 
-    const [startH, startM] = startInput.value.split(':').map(Number);
-    const [pauseH, pauseM] = pauseInput.value.split(':').map(Number);
-
-    const startDate = new Date();
-    startDate.setHours(startH, startM, 0, 0);
-
-    let originalPauseMinutes = pauseH * 60 + pauseM;
-    let pauseMinutes = Math.max(originalPauseMinutes, 30);
-
-    // Hinweistext, wenn die Pausenzeit unter 30 Minuten liegt
-    if (originalPauseMinutes < 30) {
-      pauseHint.style.display = 'block';
-    } else {
-      pauseHint.style.display = 'none';
+    function updateLanguage() {
+      const t = translations[lang];
+      document.getElementById('title').textContent = t.title;
+      infoText.innerHTML = t.info;
+      document.getElementById('labelStart').textContent = t.start;
+      document.getElementById('labelPause').textContent = t.pause;
+      document.getElementById('labelEnd').textContent = t.end;
+      document.getElementById('labelBreakStart').textContent = t.breakStart;
+      document.getElementById('labelBreakEnd').textContent = t.breakEnd;
+      calcBreakBtn.textContent = t.calcBreak;
+      resetBtn.textContent = t.reset;
+      pauseHint.textContent = t.pauseHint;
+      breakHint.textContent = t.breakHint;
+      langToggle.textContent = t.langToggle;
     }
 
-    const totalMinutes = targetWorkMinutes + pauseMinutes;
-    const feierabendDate = new Date(startDate.getTime() + totalMinutes * 60000);
-
-    const feierabend = feierabendDate.toLocaleTimeString('de-DE', {
-      hour: '2-digit',
-      minute: '2-digit'
+    langToggle.addEventListener('click', () => {
+      lang = lang === 'de' ? 'en' : 'de';
+      updateLanguage();
     });
 
-    result.textContent = `Du kannst um ${feierabend} Uhr Feierabend machen. 🎉`;
+    function updateFeierabend() {
+      if (!startInput.value || !pauseInput.value) return;
 
-    // Überstunden-/Minusstundenberechnung
-    if (endInput.value) {
-      const [endH, endM] = endInput.value.split(':').map(Number);
-      const endDate = new Date();
-      endDate.setHours(endH, endM, 0, 0);
+      const [startH, startM] = startInput.value.split(':').map(Number);
+      const [pauseH, pauseM] = pauseInput.value.split(':').map(Number);
 
-      const workedMinutes = (endDate - startDate) / 60000 - pauseMinutes;
-      const diff = workedMinutes - targetWorkMinutes;
+      const startDate = new Date();
+      startDate.setHours(startH, startM, 0, 0);
 
-      if (diff > 0) {
-        const overtimeHours = Math.floor(diff / 60);
-        const overtimeMins = Math.round(diff % 60);
-        overtime.textContent = `Du hast ${overtimeHours} Stunden und ${overtimeMins} Minuten Überstunden gemacht.`;
-      } else if (diff < 0) {
-        const minusHours = Math.floor(Math.abs(diff) / 60);
-        const minusMins = Math.round(Math.abs(diff) % 60);
-        overtime.textContent = `Du hast ${minusHours} Stunden und ${minusMins} Minuten Minusstunden.`;
+      let originalPauseMinutes = pauseH * 60 + pauseM;
+      let pauseMinutes = Math.max(originalPauseMinutes, 30);
+
+      pauseHint.style.display = originalPauseMinutes < 30 ? 'block' : 'none';
+
+      const totalMinutes = targetWorkMinutes + pauseMinutes;
+      const feierabendDate = new Date(startDate.getTime() + totalMinutes * 60000);
+
+      const feierabend = feierabendDate.toLocaleTimeString('de-DE', {
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+
+      result.textContent = lang === 'de'
+        ? `Du kannst um ${feierabend} Uhr Feierabend machen. 🎉`
+        : `You can finish work at ${feierabend}. 🎉`;
+
+      if (endInput.value) {
+        const [endH, endM] = endInput.value.split(':').map(Number);
+        const endDate = new Date();
+        endDate.setHours(endH, endM, 0, 0);
+
+        const workedMinutes = (endDate - startDate) / 60000 - pauseMinutes;
+        const diff = workedMinutes - targetWorkMinutes;
+
+        if (diff > 0) {
+          const h = Math.floor(diff / 60);
+          const m = Math.round(diff % 60);
+          overtime.textContent = lang === 'de'
+            ? `Du hast ${h} Stunden und ${m} Minuten Überstunden gemacht.`
+            : `You have ${h}h ${m}min overtime.`;
+        } else if (diff < 0) {
+          const h = Math.floor(Math.abs(diff) / 60);
+          const m = Math.round(Math.abs(diff) % 60);
+          overtime.textContent = lang === 'de'
+            ? `Du hast ${h} Stunden und ${m} Minuten Minusstunden.`
+            : `You have ${h}h ${m}min undertime.`;
+        } else {
+          overtime.textContent = lang === 'de'
+            ? `Keine Über- oder Minusstunden.`
+            : `No overtime or undertime.`;
+        }
       } else {
-        overtime.textContent = `Keine Über- oder Minusstunden.`;
+        overtime.textContent = '';
       }
-    } else {
+    }
+
+    calcBreakBtn.addEventListener('click', () => {
+      if (breakStartInput.value && breakEndInput.value) {
+        const [bStartH, bStartM] = breakStartInput.value.split(':').map(Number);
+        const [bEndH, bEndM] = breakEndInput.value.split(':').map(Number);
+
+        const breakStart = new Date();
+        const breakEnd = new Date();
+        breakStart.setHours(bStartH, bStartM, 0, 0);
+        breakEnd.setHours(bEndH, bEndM, 0, 0);
+
+        const diffMinutes = Math.round((breakEnd - breakStart) / 60000);
+        const hours = Math.floor(diffMinutes / 60);
+        const minutes = diffMinutes % 60;
+
+        pauseInput.value = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
+        updateFeierabend();
+
+        breakHint.style.display = 'block';
+        setTimeout(() => breakHint.style.display = 'none', 3000);
+      } else {
+        alert(lang === 'de' ? "Bitte Pausenbeginn und -ende vollständig angeben." : "Please enter both break start and end.");
+      }
+    });
+
+    resetBtn.addEventListener('click', () => {
+      startInput.value = '';
+      pauseInput.value = '';
+      endInput.value = '';
+      breakStartInput.value = '';
+      breakEndInput.value = '';
+      result.textContent = '';
       overtime.textContent = '';
-    }
-  }
+      pauseHint.style.display = 'none';
+    });
 
-  calcBreakBtn.addEventListener('click', () => {
-    if (breakStartInput.value && breakEndInput.value) {
-      const [bStartH, bStartM] = breakStartInput.value.split(':').map(Number);
-      const [bEndH, bEndM] = breakEndInput.value.split(':').map(Number);
+    startInput.addEventListener('input', updateFeierabend);
+    pauseInput.addEventListener('input', updateFeierabend);
+    endInput.addEventListener('input', updateFeierabend);
 
-      const breakStart = new Date();
-      const breakEnd = new Date();
-      breakStart.setHours(bStartH, bStartM, 0, 0);
-      breakEnd.setHours(bEndH, bEndM, 0, 0);
-
-      const diffMinutes = Math.round((breakEnd - breakStart) / 60000);
-      const hours = Math.floor(diffMinutes / 60);
-      const minutes = diffMinutes % 60;
-
-      pauseInput.value = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
-      updateFeierabend();
-
-      breakHint.style.display = 'block';
-      setTimeout(() => breakHint.style.display = 'none', 3000);
-    } else {
-      alert("Bitte Pausenbeginn und -ende vollständig angeben.");
-    }
-  });
-
-  resetBtn.addEventListener('click', () => {
-    startInput.value = '';
-    pauseInput.value = '';
-    endInput.value = '';
-    breakStartInput.value = '';
-    breakEndInput.value = '';
-    result.textContent = '';
-    overtime.textContent = '';
-    pauseHint.style.display = 'none';
-  });
-
-  startInput.addEventListener('input', updateFeierabend);
-  pauseInput.addEventListener('input', updateFeierabend);
-  endInput.addEventListener('input', updateFeierabend);
-</script>
-
+    updateLanguage();
+  </script>
 </body>
 </html>
